@@ -1,10 +1,13 @@
 package com.admin.SpringBootDepartmentalStore.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,8 +15,7 @@ import java.util.List;
 @Entity
 @Table(name="Customer")
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
+@SuppressFBWarnings(value = {"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 public class Customer {
 	@Id
 	//@GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,6 +28,8 @@ public class Customer {
 	@Column(name="contactNumber")
 	private String contactNumber;
 
+	@Column(name = "email")
+	private String email;
 
 	@OneToMany(cascade = CascadeType.ALL)
 	@JsonIgnore

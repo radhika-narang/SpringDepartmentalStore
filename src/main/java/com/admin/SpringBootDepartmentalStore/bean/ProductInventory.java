@@ -1,10 +1,10 @@
 package com.admin.SpringBootDepartmentalStore.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import javax.persistence.*;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,9 +12,8 @@ import java.util.List;
 
 @Entity
 @Table(name="ProductInventory")
-@NoArgsConstructor
 @Data
-@AllArgsConstructor
+@SuppressFBWarnings(value = {"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 public class ProductInventory {
 	@Id
 	//@GeneratedValue(strategy = GenerationType.AUTO)

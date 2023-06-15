@@ -1,11 +1,13 @@
 package com.admin.SpringBootDepartmentalStore.service;
 
+import com.admin.SpringBootDepartmentalStore.bean.Order;
 import com.admin.SpringBootDepartmentalStore.bean.ProductInventory;
 import com.admin.SpringBootDepartmentalStore.repository.ProductInventoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -19,10 +21,8 @@ public class ProductInventoryService {
         return productRepository.findAll();
     }
 
-    public Optional<ProductInventory> getProductById(long id)
-    {
-        Optional<ProductInventory> prod = productRepository.findById(id);
-        return prod;
+    public ProductInventory getProductById(Long productId) {
+        return productRepository.findById(productId).orElseThrow(NoSuchElementException::new);
     }
 
     public void addProduct(ProductInventory productInventory) {

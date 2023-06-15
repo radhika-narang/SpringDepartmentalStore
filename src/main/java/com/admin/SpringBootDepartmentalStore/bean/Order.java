@@ -1,16 +1,15 @@
 package com.admin.SpringBootDepartmentalStore.bean;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import javax.persistence.*;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name="Orders")
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
+@SuppressFBWarnings(value = {"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 public class Order {
 
 	@Id
