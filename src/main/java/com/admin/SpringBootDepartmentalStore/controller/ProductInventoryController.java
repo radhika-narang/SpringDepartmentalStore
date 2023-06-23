@@ -24,7 +24,7 @@ public class ProductInventoryController {
 
     @Operation(operationId = "getProduct", summary = "get Product")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved the Product"),
+            @ApiResponse(responseCode = "201", description = "Successfully retrieved the Product"),
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
     @GetMapping("/productInventory")
@@ -82,8 +82,8 @@ public class ProductInventoryController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
     @PutMapping("/productInventory/{productId}")
-    public void updateProduct(@RequestBody ProductInventory productInventory) {
-        productInventoryService.updateProduct(productInventory);
+    public void updateProduct(@PathVariable Long productId,@RequestBody ProductInventory productInventory) {
+        productInventoryService.updateProduct(productId,productInventory);
     }
 
     /**

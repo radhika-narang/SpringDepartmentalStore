@@ -2,8 +2,6 @@ package com.admin.SpringBootDepartmentalStore.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.Data;
@@ -18,7 +16,7 @@ import java.util.List;
 @SuppressFBWarnings(value = {"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 public class Customer {
 	@Id
-	//@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="customerId")
 	private Long customerId;
 	@Column(name="fullName")
@@ -27,7 +25,6 @@ public class Customer {
 	private String address;
 	@Column(name="contactNumber")
 	private String contactNumber;
-
 	@Column(name = "email")
 	private String email;
 

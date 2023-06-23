@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class Order {
 
 	@Id
-	//@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long orderId;
 
 	@ManyToOne(cascade = CascadeType.ALL)
@@ -41,5 +41,6 @@ public class Order {
 	public void setDiscountedPrice(double discountedPrice) {
 		this.discountedPrice= discountedPrice;
 	}
+
 
 }

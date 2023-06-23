@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -61,13 +62,13 @@ public class BackOrderController {
 
     @Operation(operationId = "addBackOrder", summary = "add BackOrder")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully created the Backorder"),
+            @ApiResponse(responseCode = "201", description = "Successfully created the Backorder"),
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
     @PostMapping("/backorder")
     public ResponseEntity<String> createBackOrder(@PathVariable Long orderId, @RequestBody BackOrder backorder) {
         backOrderService.createBackOrder(backorder);
-        return ResponseEntity.ok("Backorder has been created successfully.");
+        return ResponseEntity.status(HttpStatus.CREATED).body("Backorder has been created successfully.");
     }
 
     /**

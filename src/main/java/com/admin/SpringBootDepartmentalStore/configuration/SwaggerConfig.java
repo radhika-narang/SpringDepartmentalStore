@@ -15,7 +15,11 @@ import org.springdoc.core.GroupedOpenApi;
         info = @Info(
                 title = "Departmental Store API",
                 version = "1.0",
-                description = "API documentation for Departmental Store CRUD application"
+                description = "API documentation for Departmental Store CRUD application",
+                contact = @io.swagger.v3.oas.annotations.info.Contact(
+                name = "Radhika Narang",
+                email = "radhika.narang@geminisolutions.com"
+        )
         ),
         servers = {
                 @Server(url = "http://localhost:9111", description = "Local Server")
@@ -23,12 +27,5 @@ import org.springdoc.core.GroupedOpenApi;
 )
 public class SwaggerConfig implements WebMvcConfigurer {
 
-
-
-        @Override
-        public void addResourceHandlers(ResourceHandlerRegistry registry) {
-                registry.addResourceHandler("/swagger-ui/**")
-                        .addResourceLocations("classpath:/META-INF/resources/webjars/swagger-ui/");
-        }
 
 }

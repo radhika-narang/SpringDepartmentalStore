@@ -63,17 +63,16 @@ public class CustomerController {
 
     @Operation(operationId = "addCustomer", summary = "add Customer")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully added the Customer"),
+            @ApiResponse(responseCode = "201", description = "Successfully added the Customer"),
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
     @PostMapping("/customer")
     @ResponseStatus(HttpStatus.CREATED)
-    public void addCustomer(@Valid @RequestBody Customer customer) {
+    public void addCustomer(@RequestBody Customer customer) {
         customerService.addCustomer(customer);
     }
 
     /**
-
     Updates a specific customer by its ID.
     @param customer The updated customer object.
     @throws IllegalArgumentException if the customer object is not valid.
@@ -87,8 +86,8 @@ public class CustomerController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
     @PutMapping("/customer/{customerId}")
-    public void updateCustomer( @RequestBody Customer customer) {
-        customerService.updateCustomer(customer);
+    public void updateCustomer( @PathVariable Long customerId, @RequestBody Customer customer) {
+        customerService.updateCustomer(customerId, customer);
     }
 
     /**

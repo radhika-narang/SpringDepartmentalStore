@@ -1,6 +1,5 @@
 package com.admin.SpringBootDepartmentalStore.service;
 
-import com.admin.SpringBootDepartmentalStore.bean.Order;
 import com.admin.SpringBootDepartmentalStore.bean.ProductInventory;
 import com.admin.SpringBootDepartmentalStore.repository.ProductInventoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Service
 public class ProductInventoryService {
@@ -30,9 +28,18 @@ public class ProductInventoryService {
         productRepository.save(productInventory);
     }
 
-    public void updateProduct(ProductInventory productInventory) {
-
-        productRepository.save(productInventory);
+    public void updateProduct(Long productId,ProductInventory productInventory) {
+        ProductInventory productObj = getProductById(productId);
+        if(productObj != null) {
+            productObj.setProductId(productId);
+            productObj.setProductDesc(productInventory.getProductDesc());
+            productObj.setProductName(productInventory.getProductName());
+            productObj.setPrice(productInventory.getPrice());
+            productObj.setExpiry(productInventory.getExpiry());
+            productObj.setCount(productInventory.getCount());
+            productObj.setAvailability(productInventory.isAvailability());
+        }
+        productRepository.save(productObj);
     }
 
     public void deleteProduct(Long orderId) {

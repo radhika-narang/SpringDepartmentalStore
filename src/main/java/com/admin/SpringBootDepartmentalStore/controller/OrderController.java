@@ -61,7 +61,7 @@ public class OrderController {
 
     @Operation(operationId = "addOrder", summary = "add Order")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully added the Order"),
+            @ApiResponse(responseCode = "201", description = "Successfully added the Order"),
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
 
@@ -86,7 +86,7 @@ public class OrderController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
     @PutMapping("/order/{orderId}")
-    public ResponseEntity<String> updateOrder(@RequestBody Order order) {
+    public ResponseEntity<String> updateOrder(@PathVariable Long orderId,@RequestBody Order order) {
         orderService.updateOrder(order);
         return ResponseEntity.ok("Order has been updated successfully.");
     }

@@ -4,6 +4,7 @@ import com.admin.SpringBootDepartmentalStore.bean.BackOrder;
 import com.admin.SpringBootDepartmentalStore.bean.Customer;
 import com.admin.SpringBootDepartmentalStore.bean.Order;
 import com.admin.SpringBootDepartmentalStore.bean.ProductInventory;
+import com.admin.SpringBootDepartmentalStore.repository.BackOrderRepository;
 import com.admin.SpringBootDepartmentalStore.repository.CustomerRepository;
 import com.admin.SpringBootDepartmentalStore.repository.OrderRepository;
 import com.admin.SpringBootDepartmentalStore.repository.ProductInventoryRepository;
@@ -29,6 +30,9 @@ public class OrderService {
 
     @Autowired
     private BackOrderService backOrderService;
+
+    @Autowired
+    private BackOrderRepository backOrderRepository;
 
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
@@ -78,7 +82,6 @@ public class OrderService {
 
     public void addOrder(Order order) {
        updateOtherEntities(order);
-
         discount(order);
         orderRepository.save(order);
         checkProductAvailability(order);
@@ -90,7 +93,21 @@ public class OrderService {
     }
 
     public void deleteOrder(Long orderId, Order order) {
+        Order existingOrder = getOrderById(orderId);
+        ProductInventory productInventory = existingOrder.getProduct();
+
+        if(productInventory.getCount() > 0)
+            productInventory.setCount(productInventory.getCount() + existingOrder.getQuantity());
+
+        BackOrder backOrder = backOrderRepository.findByOrder(order);
+        if (backOrder != null) {
+            backOrderService.deleteBackOrder(backOrder.getBackOrderId());
+        }
         orderRepository.deleteById(orderId);
+    }
+
+    public void setBackOrderService(BackOrderService backOrderService) {
+        this.backOrderService = backOrderService;
     }
 
 }
