@@ -29,18 +29,4 @@ public class Order {
 	private double discount;
 	private double totalPrice;
 	private double discountedPrice;
-
-	public double getTotalPrice() {
-		return totalPrice;
-	}
-
-	public void setTotalPrice(double totalPrice) {
-		this.totalPrice = totalPrice;
-	}
-
-	public void setDiscountedPrice(double discountedPrice) {
-		this.discountedPrice= discountedPrice;
-	}
-
-
 }
