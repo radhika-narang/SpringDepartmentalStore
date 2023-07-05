@@ -68,33 +68,6 @@ import static org.mockito.Mockito.*;
         }
 
         @Test
-        void testValidateContactNumber_ValidContactNumber() {
-            // Valid contact number
-            String contactNumber = "1234567890";
-
-            // Call the method under test
-            assertDoesNotThrow(() -> customerService.validateContactNumber(contactNumber));
-        }
-
-        @Test
-        void testValidateContactNumber_InvalidContactNumber() {
-            // Invalid contact number
-            String contactNumber = "123";
-
-            // Call the method under test and verify the IllegalArgumentException is thrown
-            assertThrows(IllegalArgumentException.class, () -> customerService.validateContactNumber(contactNumber));
-        }
-
-        @Test
-        void testValidateContactNumber_NullContactNumber() {
-            // Null contact number
-            String contactNumber = null;
-
-            // Call the method under test and verify the IllegalArgumentException is thrown
-            assertThrows(IllegalArgumentException.class, () -> customerService.validateContactNumber(contactNumber));
-        }
-
-        @Test
         void testAddCustomer() {
             Customer customer = new Customer();
             customer.setEmail(null); // Set email as null to trigger the exception

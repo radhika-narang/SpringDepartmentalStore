@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +15,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
+@RequestMapping("/customer")
 public class CustomerController {
 
     @Autowired
@@ -30,7 +32,7 @@ public class CustomerController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved the Customer"),
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
-    @GetMapping("/customer")
+    @GetMapping
     public List<Customer> getAllCustomers() {
         return customerService.getAllCustomers();
     }
@@ -47,7 +49,7 @@ public class CustomerController {
             @ApiResponse(responseCode = "400", description = "Customer with given id not found"),
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
-    @GetMapping("/customer/{customerId}")
+    @GetMapping("/{customerId}")
     public ResponseEntity<Customer> getCustomerById(@PathVariable Long customerId) {
         Customer customer = customerService.getCustomerById(customerId);
         return ResponseEntity.ok(customer);
@@ -66,10 +68,10 @@ public class CustomerController {
             @ApiResponse(responseCode = "201", description = "Successfully added the Customer"),
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
-    @PostMapping("/customer")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void addCustomer(@RequestBody Customer customer) {
+    @PostMapping
+    public ResponseEntity<String> addCustomer(@RequestBody Customer customer) {
         customerService.addCustomer(customer);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Customer has been added successfully.");
     }
 
     /**
@@ -85,9 +87,10 @@ public class CustomerController {
             @ApiResponse(responseCode = "400", description = "Customer with given id not found"),
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
-    @PutMapping("/customer/{customerId}")
-    public void updateCustomer( @PathVariable Long customerId, @RequestBody Customer customer) {
+    @PutMapping("/{customerId}")
+    public ResponseEntity<String> updateCustomer( @PathVariable Long customerId, @RequestBody Customer customer) {
         customerService.updateCustomer(customerId, customer);
+        return ResponseEntity.ok("Customer has been updated successfully.");
     }
 
     /**
@@ -104,8 +107,9 @@ public class CustomerController {
             @ApiResponse(responseCode = "400", description = "Customer with given id not found"),
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
-    @DeleteMapping("/customer/{customerId}")
-    public void deleteCustomer(@PathVariable Long customerId) {
+    @DeleteMapping("/{customerId}")
+    public ResponseEntity<String> deleteCustomer(@PathVariable Long customerId) {
         customerService.deleteCustomer(customerId);
+        return ResponseEntity.ok("Customer has been deleted successfully.");
     }
 }

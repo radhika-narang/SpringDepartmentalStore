@@ -6,19 +6,21 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("/order")
 public class OrderController {
 
     @Autowired
     private OrderService orderService;
 
     /**
-
      Retrieves all orders.
      @return A list of all orders.
      */
@@ -27,7 +29,7 @@ public class OrderController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved the Order"),
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
-    @GetMapping("/order")
+    @GetMapping
     public List<Order> getAllOrders() {
         return orderService.getAllOrders();
     }
@@ -44,7 +46,7 @@ public class OrderController {
             @ApiResponse(responseCode = "400", description = "Order with given id not found"),
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
-    @GetMapping("/order/{orderId}")
+    @GetMapping("/{orderId}")
     public ResponseEntity<Order> getOrderById(@PathVariable Long orderId)
     {
        Order order = orderService.getOrderById(orderId);
@@ -65,10 +67,11 @@ public class OrderController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
 
-    @PostMapping("/order")
-    public void addOrder(@RequestBody Order order)
+    @PostMapping
+    public ResponseEntity<String> addOrder(@RequestBody Order order)
     {
         orderService.addOrder(order);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Order has been added successfully.");
     }
 
     /**
@@ -85,14 +88,13 @@ public class OrderController {
             @ApiResponse(responseCode = "400", description = "Order with given id not found"),
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
-    @PutMapping("/order/{orderId}")
+    @PutMapping("/{orderId}")
     public ResponseEntity<String> updateOrder(@PathVariable Long orderId,@RequestBody Order order) {
         orderService.updateOrder(order);
         return ResponseEntity.ok("Order has been updated successfully.");
     }
 
     /**
-
     Deletes a specific order by its ID.
     @param orderId The ID of the order to delete.
     @param order The order object.
@@ -106,7 +108,7 @@ public class OrderController {
             @ApiResponse(responseCode = "400", description = "Order with given id not found"),
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
-    @DeleteMapping("/order/{orderId}")
+    @DeleteMapping("/{orderId}")
     public ResponseEntity<String> deleteOrder(@PathVariable Long orderId, Order order) {
         orderService.deleteOrder(orderId, order);
         return ResponseEntity.ok("Order has been deleted successfully.");

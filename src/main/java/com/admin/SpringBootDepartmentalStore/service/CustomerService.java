@@ -3,6 +3,7 @@ package com.admin.SpringBootDepartmentalStore.service;
 import com.admin.SpringBootDepartmentalStore.bean.Customer;
 import com.admin.SpringBootDepartmentalStore.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -12,6 +13,12 @@ public class CustomerService {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Value("${valid}")
+    private String valid;
+
+    @Value("${pattern}")
+    private String pattern;
 
     public List<Customer> getAllCustomers()
     {
@@ -23,21 +30,16 @@ public class CustomerService {
     }
 
     private void validateEmail(String email) {
-        String valid = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
-                + "[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 
         if (!email.matches(valid)) {
             throw new IllegalArgumentException("Invalid email");
         }
     }
 
-    public void validateContactNumber(String contactNumber) {
+    private void validateContactNumber(String contactNumber) {
         if (contactNumber == null) {
             throw new IllegalArgumentException("Contact number cannot be null");
         }
-
-        // Regular expression pattern for a 10-digit contact number
-        String pattern = "\\d{10}";
 
         if (!contactNumber.matches(pattern)) {
             throw new IllegalArgumentException("Invalid contact number");
@@ -75,6 +77,4 @@ public class CustomerService {
     public void deleteCustomer(Long customerId) {
         customerRepository.deleteById(customerId);
     }
-
-
 }

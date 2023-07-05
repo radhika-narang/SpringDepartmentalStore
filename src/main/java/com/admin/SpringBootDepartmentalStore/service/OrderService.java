@@ -52,17 +52,20 @@ public class OrderService {
     public void checkProductAvailability(Order order)
     {
         ProductInventory productInventory = order.getProduct();
-        if(order.getProduct().getCount() > 0 && order.getProduct().isAvailability()) {
+        if (order.getProduct().getQuantity() > 0) {
             orderRepository.save(order);
-            productInventory.setCount(productInventory.getCount() - order.getQuantity());
+            productInventory.setQuantity(productInventory.getQuantity() - order.getQuantity());
             productInventoryRepository.save(productInventory);
-        }
-        else {
+        } else {
             Order savedOrder = orderRepository.save(order);
-            // Create a backorder for the order
-            BackOrder backorder = new BackOrder();
-            backorder.setOrder(savedOrder);
-            backOrderService.createBackOrder(backorder);
+            // Check if any backorders exist for this product
+            List<BackOrder> existingBackOrders = backOrderRepository.findByOrderProductProductId(productInventory.getProductId());
+            if (existingBackOrders.isEmpty()) {
+                // No existing backorders, create a new one
+                BackOrder backorder = new BackOrder();
+                backorder.setOrder(savedOrder);
+                backOrderService.createBackOrder(backorder);
+            }
             throw new IllegalStateException("Order placed successfully but out of stock. We will notify you once it is in stock");
         }
     }
@@ -89,25 +92,24 @@ public class OrderService {
     }
 
     public void updateOrder(Order order) {
+        updateOtherEntities(order);
+        discount(order);
         orderRepository.save(order);
+        checkProductAvailability(order);
     }
 
     public void deleteOrder(Long orderId, Order order) {
         Order existingOrder = getOrderById(orderId);
         ProductInventory productInventory = existingOrder.getProduct();
 
-        if(productInventory.getCount() > 0)
-            productInventory.setCount(productInventory.getCount() + existingOrder.getQuantity());
-
-        BackOrder backOrder = backOrderRepository.findByOrder(order);
-        if (backOrder != null) {
-            backOrderService.deleteBackOrder(backOrder.getBackOrderId());
+        if (productInventory.getQuantity() > 0) {
+            productInventory.setQuantity(productInventory.getQuantity() + existingOrder.getQuantity());
         }
-        orderRepository.deleteById(orderId);
-    }
 
-    public void setBackOrderService(BackOrderService backOrderService) {
-        this.backOrderService = backOrderService;
+        Optional<BackOrder> optionalBackOrder = backOrderRepository.findByOrder(existingOrder);
+        optionalBackOrder.ifPresent(backOrder -> backOrderService.deleteBackOrder(backOrder.getBackOrderId()));
+
+        orderRepository.deleteById(orderId); // Delete the order
     }
 
 }

@@ -5,7 +5,6 @@ import com.admin.SpringBootDepartmentalStore.repository.BackOrderRepository;
 import com.admin.SpringBootDepartmentalStore.repository.CustomerRepository;
 import com.admin.SpringBootDepartmentalStore.repository.OrderRepository;
 import com.admin.SpringBootDepartmentalStore.repository.ProductInventoryRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -102,8 +101,7 @@ public class OrderServiceTest {
         // Arrange
         Order order = new Order();
         ProductInventory productInventory = new ProductInventory();
-        productInventory.setCount(5);
-        productInventory.setAvailability(true);
+        productInventory.setQuantity(5);
         order.setProduct(productInventory);
         order.setQuantity(2);
 
@@ -115,7 +113,7 @@ public class OrderServiceTest {
         orderService.checkProductAvailability(order);
 
         // Assert
-        assertEquals(3, productInventory.getCount());
+        assertEquals(3, productInventory.getQuantity());
         verify(orderRepository, times(1)).save(order);
         verify(productInventoryRepository, times(1)).save(productInventory);
     }
@@ -145,8 +143,7 @@ public class OrderServiceTest {
         // Arrange
         Order order = new Order();
         ProductInventory productInventory = new ProductInventory();
-        productInventory.setCount(0);
-        productInventory.setAvailability(false);
+        productInventory.setQuantity(0);
         order.setProduct(productInventory);
         order.setQuantity(2);
 
@@ -214,9 +211,7 @@ public class OrderServiceTest {
         product.setProductName("Product 1");
         product.setProductDesc("Product description");
         product.setPrice(9.99);
-        product.setExpiry(new Date());
-        product.setCount(10);
-        product.setAvailability(true);
+        product.setQuantity(10);
 
         // Create an order
         Order order = new Order();

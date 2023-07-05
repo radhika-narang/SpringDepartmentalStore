@@ -21,9 +21,7 @@ public class ProductInventory {
 	private String productDesc;
 	private String productName;
 	private double price;
-	private Date expiry;
-	private int count;
-	private boolean availability;
+	private int quantity;
 
 	@OneToMany(cascade = CascadeType.ALL)
 	@JsonIgnore
