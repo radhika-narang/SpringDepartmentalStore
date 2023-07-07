@@ -7,9 +7,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 @RestController
@@ -48,8 +53,7 @@ public class BackOrderController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
     @GetMapping("/{backOrderId}")
-    public ResponseEntity<BackOrder> getBackOrderById(@PathVariable Long backOrderId)
-    {
+    public ResponseEntity<BackOrder> getBackOrderById(final @PathVariable Long backOrderId) {
         BackOrder backOrder = backOrderService.getBackOrderById(backOrderId);
         return ResponseEntity.ok(backOrder);
     }
@@ -68,7 +72,7 @@ public class BackOrderController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
     @PostMapping
-    public ResponseEntity<String> createBackOrder(@PathVariable Long orderId, @RequestBody BackOrder backorder) {
+    public ResponseEntity<String> createBackOrder(final @PathVariable Long orderId, final @RequestBody BackOrder backorder) {
         backOrderService.createBackOrder(backorder);
         return ResponseEntity.status(HttpStatus.CREATED).body("Backorder has been created successfully.");
     }
@@ -86,7 +90,7 @@ public class BackOrderController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
     @DeleteMapping("/{backOrderId}")
-    public ResponseEntity<String> deleteBackOrder(@PathVariable Long backOrderId) {
+    public ResponseEntity<String> deleteBackOrder(final @PathVariable Long backOrderId) {
         backOrderService.deleteBackOrder(backOrderId);
         return ResponseEntity.ok("Backorder deleted successfully.");
     }

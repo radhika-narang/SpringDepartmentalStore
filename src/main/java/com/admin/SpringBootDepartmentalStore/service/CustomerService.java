@@ -20,23 +20,22 @@ public class CustomerService {
     @Value("${pattern}")
     private String pattern;
 
-    public List<Customer> getAllCustomers()
-    {
+    public final List<Customer> getAllCustomers() {
         return customerRepository.findAll();
     }
 
-    public Customer getCustomerById(Long customerId) {
+    public final Customer getCustomerById(final Long customerId) {
         return customerRepository.findById(customerId).orElseThrow(NoSuchElementException::new);
     }
 
-    private void validateEmail(String email) {
+    private void validateEmail(final String email) {
 
         if (!email.matches(valid)) {
             throw new IllegalArgumentException("Invalid email");
         }
     }
 
-    private void validateContactNumber(String contactNumber) {
+    private void validateContactNumber(final String contactNumber) {
         if (contactNumber == null) {
             throw new IllegalArgumentException("Contact number cannot be null");
         }
@@ -46,19 +45,19 @@ public class CustomerService {
         }
     }
 
-    public void addCustomer(Customer customer) {
+    public final void addCustomer(final Customer customer) {
         validateEmail(customer.getEmail());
         validateContactNumber(customer.getContactNumber());
         customerRepository.save(customer);
     }
 
 
-    public void updateCustomer(Long customerId,Customer customer) {
+    public final void updateCustomer(final Long customerId, final Customer customer) {
         Customer customerObj = getCustomerById(customerId);
         if (customerObj != null) {
             String updatedEmail = customer.getEmail();
             if (updatedEmail != null && !updatedEmail.isEmpty()) {
-                validateEmail(updatedEmail); // Perform email validation
+                validateEmail(updatedEmail);
                 validateContactNumber(customer.getContactNumber());
                 customerObj.setCustomerId(customerId);
                 customerObj.setFullName(customer.getFullName());
@@ -74,7 +73,7 @@ public class CustomerService {
         }
     }
 
-    public void deleteCustomer(Long customerId) {
+    public final void deleteCustomer(final Long customerId) {
         customerRepository.deleteById(customerId);
     }
 }

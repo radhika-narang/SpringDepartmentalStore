@@ -14,23 +14,22 @@ import java.util.List;
 
 public class ExcelHelper {
 
-    //check that file is an excel file or not
-    public static boolean checkFormat(MultipartFile file) {
+    //check if the file is an Excel file or not
+    public static final boolean checkFormat(final MultipartFile file) {
 
         String contentType = file.getContentType();
 
         if (contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
             return true;
-        } else {
-            return false;
         }
+        return false;
 
     }
 
 
-    //to convert excel file to a list of products
+    //to convert Excel file to a list of products
 
-    public static List<ProductInventory> convertExcelToList(InputStream is) {
+    public static List<ProductInventory> convertExcelToList(final InputStream is) {
         List<ProductInventory> list = new ArrayList<>();
 
         try {
@@ -74,7 +73,7 @@ public class ExcelHelper {
                             p.setPrice(cell.getNumericCellValue());
                             break;
                         case 4:
-                            p.setQuantity((int)cell.getNumericCellValue());
+                            p.setQuantity((int) cell.getNumericCellValue());
                             break;
                         default:
                             break;

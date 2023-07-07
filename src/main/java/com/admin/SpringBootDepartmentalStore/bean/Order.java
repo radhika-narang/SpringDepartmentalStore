@@ -1,13 +1,20 @@
 package com.admin.SpringBootDepartmentalStore.bean;
-import javax.persistence.*;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.Data;
 
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.CascadeType;
+import javax.persistence.ManyToOne;
+import javax.persistence.GenerationType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="Orders")
+@Table(name = "Orders")
 @Data
 @SuppressFBWarnings(value = {"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 public class Order {

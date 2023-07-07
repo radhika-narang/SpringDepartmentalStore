@@ -1,12 +1,13 @@
 package com.admin.SpringBootDepartmentalStore.service;
-
 import com.admin.SpringBootDepartmentalStore.bean.BackOrder;
 import com.admin.SpringBootDepartmentalStore.bean.Order;
 import com.admin.SpringBootDepartmentalStore.bean.ProductInventory;
 import com.admin.SpringBootDepartmentalStore.helper.ExcelHelper;
 import com.admin.SpringBootDepartmentalStore.repository.BackOrderRepository;
+import com.admin.SpringBootDepartmentalStore.repository.OrderRepository;
 import com.admin.SpringBootDepartmentalStore.repository.ProductInventoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,7 +27,10 @@ public class ProductInventoryService {
     @Autowired
     private BackOrderRepository backOrderRepository;
 
-    public void save(MultipartFile file) {
+    @Autowired
+    private OrderRepository orderRepository;
+
+    public final void save(final MultipartFile file) {
 
         try {
             List<ProductInventory> products = ExcelHelper.convertExcelToList(file.getInputStream());
@@ -37,38 +41,48 @@ public class ProductInventoryService {
 
     }
 
-    public List<ProductInventory> getAllProducts()
-    {
+    public  final List<ProductInventory> getAllProducts() {
         return productRepository.findAll();
     }
 
-    public ProductInventory getProductById(Long productId) {
+    public final ProductInventory getProductById(final Long productId) {
         return productRepository.findById(productId).orElseThrow(NoSuchElementException::new);
     }
 
-    public void addProduct(ProductInventory productInventory) {
+    public final void addProduct(final ProductInventory productInventory) {
 
         productRepository.save(productInventory);
     }
 
-    public void updateProductQuantity(Long productId, int newQuantity) {
-        ProductInventory productInventory = getProductById(productId);
-        productInventory.setQuantity(newQuantity);
-        productRepository.save(productInventory);
-
-        // Check if any backorders exist for this product
+    public final void removeBackorder(final Long productId, final ProductInventory productInventory) {
+        ProductInventory productObj = getProductById(productId);
         List<BackOrder> backOrders = backOrderRepository.findByOrderProductProductId(productId);
+
+        if (backOrders.isEmpty()) {
+            return;
+        }
+
+        boolean isQuantityFulfilled = false;
+        int remainingQuantity = productObj.getQuantity();
+
         for (BackOrder backOrder : backOrders) {
             Order order = backOrder.getOrder();
-            if (newQuantity >= order.getQuantity()) {
+            if (remainingQuantity >= order.getQuantity()) {
                 // Sufficient quantity available, delete the backorder
                 backOrderService.deleteBackOrder(backOrder.getBackOrderId());
-                productInventory.setQuantity(productInventory.getQuantity()-order.getQuantity());
+                remainingQuantity -= order.getQuantity();
+                isQuantityFulfilled = true;
             }
+        }
+
+        if (isQuantityFulfilled) {
+            // Update the product quantity
+            productInventory.setQuantity(remainingQuantity);
+            productRepository.save(productInventory);
         }
     }
 
-    public void updateProduct(Long productId,ProductInventory productInventory) {
+    public final void updateProduct(final Long productId, final ProductInventory productInventory) {
         ProductInventory productObj = getProductById(productId);
         if (productObj != null) {
             productObj.setProductId(productId);
@@ -76,23 +90,21 @@ public class ProductInventoryService {
             productObj.setProductName(productInventory.getProductName());
             productObj.setPrice(productInventory.getPrice());
             productObj.setQuantity(productInventory.getQuantity());
-
-            // Check if any backorders exist for this product
-            List<BackOrder> backOrders = backOrderRepository.findByOrderProductProductId(productId);
-            for (BackOrder backOrder : backOrders) {
-                Order order = backOrder.getOrder();
-                if (productObj.getQuantity() >= order.getQuantity()) {
-                    // Sufficient quantity available, delete the backorder
-                    backOrderService.deleteBackOrder(backOrder.getBackOrderId());
-                    productInventory.setQuantity(productInventory.getQuantity()-order.getQuantity());
-                }
-            }
-
             productRepository.save(productObj);
         }
     }
 
-    public void deleteProduct(Long orderId) {
+    public final void deleteProduct(final Long orderId) {
         productRepository.deleteById(orderId);
+    }
+
+    @Scheduled(cron = "0 * * * * *")
+    public final void removeBackordersScheduled() {
+        // Get the list of products with backorders
+        List<ProductInventory> productsWithBackorders = productRepository.findAll();
+
+        for (ProductInventory productInventory : productsWithBackorders) {
+            removeBackorder(productInventory.getProductId(), productInventory);
+        }
     }
 }

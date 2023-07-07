@@ -8,9 +8,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -51,17 +58,16 @@ public class ProductInventoryController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
     @GetMapping("/{productId}")
-    public ResponseEntity<ProductInventory> getProductById(@PathVariable Long productId)
-    {
+    public ResponseEntity<ProductInventory> getProductById(final @PathVariable Long productId) {
         ProductInventory productInventory = productInventoryService.getProductById(productId);
         return ResponseEntity.ok(productInventory);
     }
 
-   // /**
-  //   Adds a new product to the inventory.
-  //   @param productInventory The product inventory object to add.
-   //  @throws IllegalArgumentException if the product inventory object is not valid.
-   //  */
+    /**
+     Adds a new product to the inventory.
+     @param file The product inventory object to add.
+     @throws IllegalArgumentException if the product inventory object is not valid.
+     */
 
     @Operation(operationId = "addProduct", summary = "add Product")
     @ApiResponses(value = {
@@ -70,12 +76,7 @@ public class ProductInventoryController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
     @PostMapping
-    /*public ResponseEntity<String> addProduct(@RequestBody ProductInventory productInventory) {
-        productInventoryService.addProduct(productInventory);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Product has been added successfully.");
-    }*/
-
-    public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> upload(final @RequestParam("file") MultipartFile file) {
         if (ExcelHelper.checkFormat(file)) {
             //true
 
@@ -101,8 +102,8 @@ public class ProductInventoryController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
     @PutMapping("/{productId}")
-    public ResponseEntity<String> updateProduct(@PathVariable Long productId,@RequestBody ProductInventory productInventory) {
-        productInventoryService.updateProduct(productId,productInventory);
+    public ResponseEntity<String> updateProduct(final @PathVariable Long productId, final @RequestBody ProductInventory productInventory) {
+        productInventoryService.updateProduct(productId, productInventory);
         return ResponseEntity.ok("Product has been updated successfully");
     }
 
@@ -120,7 +121,7 @@ public class ProductInventoryController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
     @DeleteMapping("/{productId}")
-    public ResponseEntity<String> deleteProduct(@PathVariable Long productId) {
+    public ResponseEntity<String> deleteProduct(@PathVariable final Long productId) {
         productInventoryService.deleteProduct(productId);
         return ResponseEntity.ok("Product has been deleted successfully");
     }

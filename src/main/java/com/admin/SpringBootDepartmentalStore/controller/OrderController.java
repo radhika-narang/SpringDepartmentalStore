@@ -7,9 +7,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.DeleteMapping;;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -47,8 +53,7 @@ public class OrderController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<Order> getOrderById(@PathVariable Long orderId)
-    {
+    public ResponseEntity<Order> getOrderById(final @PathVariable Long orderId) {
        Order order = orderService.getOrderById(orderId);
        return ResponseEntity.ok(order);
     }
@@ -68,8 +73,7 @@ public class OrderController {
 
 
     @PostMapping
-    public ResponseEntity<String> addOrder(@RequestBody Order order)
-    {
+    public ResponseEntity<String> addOrder(final @RequestBody Order order) {
         orderService.addOrder(order);
         return ResponseEntity.status(HttpStatus.CREATED).body("Order has been added successfully.");
     }
@@ -89,7 +93,7 @@ public class OrderController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
     @PutMapping("/{orderId}")
-    public ResponseEntity<String> updateOrder(@PathVariable Long orderId,@RequestBody Order order) {
+    public ResponseEntity<String> updateOrder(final @PathVariable Long orderId, final @RequestBody Order order) {
         orderService.updateOrder(order);
         return ResponseEntity.ok("Order has been updated successfully.");
     }
@@ -109,7 +113,7 @@ public class OrderController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
     @DeleteMapping("/{orderId}")
-    public ResponseEntity<String> deleteOrder(@PathVariable Long orderId, Order order) {
+    public ResponseEntity<String> deleteOrder(final @PathVariable Long orderId, final Order order) {
         orderService.deleteOrder(orderId, order);
         return ResponseEntity.ok("Order has been deleted successfully.");
     }

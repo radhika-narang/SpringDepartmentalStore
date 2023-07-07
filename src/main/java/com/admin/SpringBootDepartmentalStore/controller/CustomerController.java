@@ -7,11 +7,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -50,7 +55,7 @@ public class CustomerController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
     @GetMapping("/{customerId}")
-    public ResponseEntity<Customer> getCustomerById(@PathVariable Long customerId) {
+    public ResponseEntity<Customer> getCustomerById(final @PathVariable Long customerId) {
         Customer customer = customerService.getCustomerById(customerId);
         return ResponseEntity.ok(customer);
     }
@@ -69,7 +74,7 @@ public class CustomerController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
     @PostMapping
-    public ResponseEntity<String> addCustomer(@RequestBody Customer customer) {
+    public ResponseEntity<String> addCustomer(final @RequestBody Customer customer) {
         customerService.addCustomer(customer);
         return ResponseEntity.status(HttpStatus.CREATED).body("Customer has been added successfully.");
     }
@@ -88,7 +93,7 @@ public class CustomerController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
     @PutMapping("/{customerId}")
-    public ResponseEntity<String> updateCustomer( @PathVariable Long customerId, @RequestBody Customer customer) {
+    public ResponseEntity<String> updateCustomer(final @PathVariable Long customerId, final @RequestBody Customer customer) {
         customerService.updateCustomer(customerId, customer);
         return ResponseEntity.ok("Customer has been updated successfully.");
     }
@@ -108,7 +113,7 @@ public class CustomerController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
     @DeleteMapping("/{customerId}")
-    public ResponseEntity<String> deleteCustomer(@PathVariable Long customerId) {
+    public ResponseEntity<String> deleteCustomer(final @PathVariable Long customerId) {
         customerService.deleteCustomer(customerId);
         return ResponseEntity.ok("Customer has been deleted successfully.");
     }

@@ -11,7 +11,9 @@ import com.admin.SpringBootDepartmentalStore.repository.ProductInventoryReposito
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 public class OrderService {
@@ -34,23 +36,22 @@ public class OrderService {
     @Autowired
     private BackOrderRepository backOrderRepository;
 
-    public List<Order> getAllOrders() {
+    public final List<Order> getAllOrders() {
         return orderRepository.findAll();
     }
 
-    public Order getOrderById(Long orderId) {
+    public final Order getOrderById(final Long orderId) {
         return orderRepository.findById(orderId).orElseThrow(NoSuchElementException::new);
     }
 
-    public void updateOtherEntities(Order order) {
+    public final void updateOtherEntities(final Order order) {
         Customer customer = customerRepository.findById(order.getCustomer().getCustomerId()).orElse(null);
         ProductInventory productInventory = productInventoryRepository.findById(order.getProduct().getProductId()).orElse(null);
         order.setCustomer(customer);
         order.setProduct(productInventory);
     }
 
-    public void checkProductAvailability(Order order)
-    {
+    public final void checkProductAvailability(final Order order) {
         ProductInventory productInventory = order.getProduct();
         if (order.getProduct().getQuantity() > 0) {
             orderRepository.save(order);
@@ -58,19 +59,15 @@ public class OrderService {
             productInventoryRepository.save(productInventory);
         } else {
             Order savedOrder = orderRepository.save(order);
-            // Check if any backorders exist for this product
-            List<BackOrder> existingBackOrders = backOrderRepository.findByOrderProductProductId(productInventory.getProductId());
-            if (existingBackOrders.isEmpty()) {
-                // No existing backorders, create a new one
-                BackOrder backorder = new BackOrder();
-                backorder.setOrder(savedOrder);
-                backOrderService.createBackOrder(backorder);
-            }
-            throw new IllegalStateException("Order placed successfully but out of stock. We will notify you once it is in stock");
+
+            BackOrder backorder = new BackOrder();
+            backorder.setOrder(savedOrder);
+            backOrderService.createBackOrder(backorder);
+            throw new IllegalStateException("Order placed successfully but product is out of stock. We will notify you once it is in stock and process the order");
         }
     }
 
-    public void discount(Order order){
+    public final void discount(final Order order) {
         ProductInventory productInventory = order.getProduct();
         double productPrice = productInventory.getPrice();
 
@@ -83,7 +80,7 @@ public class OrderService {
     }
 
 
-    public void addOrder(Order order) {
+    public final void addOrder(final Order order) {
        updateOtherEntities(order);
         discount(order);
         orderRepository.save(order);
@@ -91,14 +88,14 @@ public class OrderService {
 
     }
 
-    public void updateOrder(Order order) {
+    public final void updateOrder(final Order order) {
         updateOtherEntities(order);
         discount(order);
         orderRepository.save(order);
         checkProductAvailability(order);
     }
 
-    public void deleteOrder(Long orderId, Order order) {
+    public final void deleteOrder(final Long orderId, final Order order) {
         Order existingOrder = getOrderById(orderId);
         ProductInventory productInventory = existingOrder.getProduct();
 
@@ -109,7 +106,7 @@ public class OrderService {
         Optional<BackOrder> optionalBackOrder = backOrderRepository.findByOrder(existingOrder);
         optionalBackOrder.ifPresent(backOrder -> backOrderService.deleteBackOrder(backOrder.getBackOrderId()));
 
-        orderRepository.deleteById(orderId); // Delete the order
+        orderRepository.deleteById(orderId);
     }
 
 }
