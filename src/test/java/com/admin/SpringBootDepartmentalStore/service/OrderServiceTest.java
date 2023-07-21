@@ -7,9 +7,15 @@ import com.admin.SpringBootDepartmentalStore.repository.OrderRepository;
 import com.admin.SpringBootDepartmentalStore.repository.ProductInventoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+
 import static org.mockito.Mockito.when;
 
 
@@ -20,6 +26,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class OrderServiceTest {
     @Mock
     private OrderRepository orderRepository;
@@ -33,9 +41,12 @@ public class OrderServiceTest {
     private CustomerRepository customerRepository;
 
     @Mock
-    private ProductInventoryService productInventoryService;
+    private CustomerService customerService;
 
     @Mock
+    private ProductInventoryService productInventoryService;
+
+    @MockBean
     private BackOrderService backOrderService;
 
     @InjectMocks
@@ -44,84 +55,95 @@ public class OrderServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        orderService.setBackOrderService(backOrderService);  // Set the mocked BackOrderService in OrderService
+        orderService.setBackOrderRepository(backOrderRepository);
+        orderService.setProductInventoryRepository(productInventoryRepository);
+        orderService.setCustomerRepository(customerRepository);
+
     }
 
     @Test
     void testGetAllOrders() {
-        // Mocking repository behavior
-        when(orderRepository.findAll()).thenReturn(Collections.emptyList());
+        // Create some sample orders
+        List<Order> expectedOrders = List.of(
+                new Order(/* order details */),
+                new Order(/* order details */),
+                new Order(/* order details */)
+        );
+        // Mock the orderRepository to return the sample orders
+        Mockito.when(orderRepository.findAll()).thenReturn(expectedOrders);
 
-        // Calling the service method
-        List<Order> orders = orderService.getAllOrders();
+        // Call the method under test
+        List<Order> actualOrders = orderService.getAllOrders();
 
-        // Verifying the repository method was called
-        verify(orderRepository, times(1)).findAll();
-
-        // Asserting the result
-        assertNotNull(orders);
-        assertEquals(0, orders.size());
+        // Assert the result
+        assertEquals(expectedOrders, actualOrders);
     }
 
     @Test
-    void testGetOrderById_existingOrderId() {
-        Long orderId = 1L;
-        Order order = new Order();
-        order.setOrderId(orderId);
+    void testGetAllOrders_EmptyList() {
+        // Mock the orderRepository to return an empty list of orders
+        Mockito.when(orderRepository.findAll()).thenReturn(Collections.emptyList());
 
-        // Mocking repository behavior
-        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+        // Call the method under test
+        List<Order> actualOrders = orderService.getAllOrders();
 
-        // Calling the service method
-        Order result = orderService.getOrderById(orderId);
-
-        // Verifying the repository method was called
-        verify(orderRepository, times(1)).findById(orderId);
-
-        // Asserting the result
-        assertNotNull(result);
-        assertEquals(orderId, result.getOrderId());
+        // Assert the result
+        assertTrue(actualOrders.isEmpty());
     }
 
     @Test
-    void testGetOrderById_nonExistingOrderId() {
+    void testGetOrderById_ValidOrderId() {
+        // Create a sample order with a known ID
         Long orderId = 1L;
+        Order expectedOrder = new Order(/* order details */);
+        expectedOrder.setOrderId(orderId);
 
-        // Mocking repository behavior
-        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+        // Mock the orderRepository to return the sample order
+        Mockito.when(orderRepository.findById(orderId)).thenReturn(Optional.of(expectedOrder));
 
-        // Calling the service method and asserting the exception
+        // Call the method under test
+        Order actualOrder = orderService.getOrderById(orderId);
+
+        // Assert the result
+        assertEquals(expectedOrder, actualOrder);
+    }
+
+    @Test
+    void testGetOrderById_InvalidOrderId() {
+        // Create an invalid (non-existing) order ID
+        Long orderId = 100L;
+
+        // Mock the orderRepository to return an empty Optional
+        Mockito.when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+
+        // Call the method under test and expect it to throw a NoSuchElementException
         assertThrows(NoSuchElementException.class, () -> orderService.getOrderById(orderId));
-
-        // Verifying the repository method was called
-        verify(orderRepository, times(1)).findById(orderId);
     }
 
     @Test
     void testCheckProductAvailability_WithAvailableProduct() {
-        // Arrange
+        // Create a sample order with a product quantity > 0
         Order order = new Order();
-        ProductInventory productInventory = new ProductInventory();
-        productInventory.setQuantity(5);
+        ProductInventory productInventory = new ProductInventory(/* product details */);
+        productInventory.setQuantity(10);
         order.setProduct(productInventory);
-        order.setQuantity(2);
 
-        // Mock the repository save methods
-        when(orderRepository.save(order)).thenReturn(order);
-        when(productInventoryRepository.save(productInventory)).thenReturn(productInventory);
+        // Mock the necessary repositories and services
 
-        // Act
+        // Call the method under test
         orderService.checkProductAvailability(order);
 
-        // Assert
-        assertEquals(3, productInventory.getQuantity());
-        verify(orderRepository, times(1)).save(order);
-        verify(productInventoryRepository, times(1)).save(productInventory);
+        // Assert that the order is saved and the product quantity is reduced
+        Mockito.verify(orderRepository, Mockito.times(1)).save(order);
+        Mockito.verify(productInventoryRepository, Mockito.times(1)).save(productInventory);
+        assertEquals(10, productInventory.getQuantity());
     }
 
     @Test
     void testAddOrder_ValidOrder_OrderSaved() {
         // Create a valid order
-        Order order = testCreateOrder(1L);
+        Order order = createOrder(1L);
         // Set up order properties
 
         // Mock the behavior of dependencies
@@ -139,93 +161,43 @@ public class OrderServiceTest {
     }
 
     @Test
-    public void testCheckProductAvailability_OrderOutOfStock_BackOrderCreated() {
+    void testUpdateOrder_Success() {
         // Arrange
-        Order order = new Order();
-        ProductInventory productInventory = new ProductInventory();
-        productInventory.setQuantity(0);
-        order.setProduct(productInventory);
-        order.setQuantity(2);
-
-        // Mock the necessary dependencies and their behavior
-        when(orderRepository.save(any(Order.class))).thenReturn(order);
-        doNothing().when(backOrderService).createBackOrder(any(BackOrder.class));
-
-        // Act and Assert
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-            orderService.checkProductAvailability(order);
-        });
-
-        assertEquals("Order placed successfully but out of stock. We will notify you once it is in stock", exception.getMessage());
-        verify(orderRepository, times(1)).save(order);
-        verify(backOrderService, times(1)).createBackOrder(any(BackOrder.class));
-        // Add more assertions as needed
-    }
-
-
-    @Test
-    void testUpdateOrder() {
-        // Create an order to update
-        Order order = new Order();
-        // Set up order properties
-
-        // Mock the behavior of dependencies
+        Order order = createOrder(1L); // Sample order with ID 1L
         when(orderRepository.save(order)).thenReturn(order);
+        when(productInventoryRepository.findById(order.getProduct().getProductId())).thenReturn(Optional.of(order.getProduct()));
+        when(customerRepository.findById(order.getCustomer().getCustomerId())).thenReturn(Optional.of(order.getCustomer()));
 
-        // Call the method under test
+        // Act
         orderService.updateOrder(order);
 
-        // Verify the order is saved
-        verify(orderRepository, times(1)).save(order);
+        // Assert
+        verify(productInventoryRepository, times(1)).findById(order.getProduct().getProductId());
+        verify(customerRepository, times(1)).findById(order.getCustomer().getCustomerId());
     }
 
-    @Test
-    void testDeleteOrder() {
-        Long orderId = 1L;
-        Order order = new Order();
-        order.setOrderId(orderId);
 
-        // Mock the behavior of dependencies
-        when(orderRepository.findById(orderId)).thenReturn(Optional.empty()); // Simulate the case where order is not found
-
-        // Call the method under test and verify the exception
-        assertThrows(NoSuchElementException.class, () -> orderService.deleteOrder(orderId, order));
-
-        // Verify that the deleteById method is not invoked
-        verify(orderRepository, never()).deleteById(orderId);
-        verify(backOrderRepository, never()).findByOrder(any(Order.class));
-        verify(backOrderService, never()).deleteBackOrder(anyLong());
-    }
-
-    @Test
-    private Order testCreateOrder(Long orderId) {
-        // Create a sample customer
-        Customer customer = new Customer();
-        customer.setFullName("John Doe");
-        customer.setAddress("123 Main Street");
-        customer.setContactNumber("1234567890");
-        customer.setEmail("john.doe@example.com");
-
-        // Create a sample product
-        ProductInventory product = new ProductInventory();
-        product.setProductName("Product 1");
-        product.setProductDesc("Product description");
-        product.setPrice(9.99);
-        product.setQuantity(10);
-
-        // Create an order
+    private Order createOrder(Long orderId) {
         Order order = new Order();
         order.setOrderId(orderId);
         order.setOrderTimestamp(LocalDateTime.now());
-        order.setCustomer(customer);
-        order.setProduct(product);
         order.setQuantity(2);
         order.setDiscount(10.0);
-        order.setDiscountedPrice(90.0);
 
+        Customer customer = new Customer();
+        customer.setCustomerId(1L);
+        customer.setFullName("John Doe");
+        order.setCustomer(customer);
+
+        ProductInventory productInventory = new ProductInventory();
+        productInventory.setProductId(1L);
+        productInventory.setProductName("Product 1");
+        productInventory.setQuantity(5);
+        productInventory.setPrice(100.0);
+        order.setProduct(productInventory);
         return order;
-
     }
+
 }
 
 

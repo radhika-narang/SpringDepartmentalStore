@@ -20,11 +20,11 @@ public class CustomerService {
     @Value("${pattern}")
     private String pattern;
 
-    public final List<Customer> getAllCustomers() {
+    public List<Customer> getAllCustomers() {
         return customerRepository.findAll();
     }
 
-    public final Customer getCustomerById(final Long customerId) {
+    public Customer getCustomerById(final Long customerId) {
         return customerRepository.findById(customerId).orElseThrow(NoSuchElementException::new);
     }
 
@@ -45,14 +45,14 @@ public class CustomerService {
         }
     }
 
-    public final void addCustomer(final Customer customer) {
+    public void addCustomer(final Customer customer) {
         validateEmail(customer.getEmail());
         validateContactNumber(customer.getContactNumber());
         customerRepository.save(customer);
     }
 
 
-    public final void updateCustomer(final Long customerId, final Customer customer) {
+    public void updateCustomer(final Long customerId, final Customer customer) {
         Customer customerObj = getCustomerById(customerId);
         if (customerObj != null) {
             String updatedEmail = customer.getEmail();
@@ -73,7 +73,7 @@ public class CustomerService {
         }
     }
 
-    public final void deleteCustomer(final Long customerId) {
+    public void deleteCustomer(final Long customerId) {
         customerRepository.deleteById(customerId);
     }
 }

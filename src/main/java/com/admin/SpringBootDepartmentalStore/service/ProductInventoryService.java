@@ -30,7 +30,7 @@ public class ProductInventoryService {
     @Autowired
     private OrderRepository orderRepository;
 
-    public final void save(final MultipartFile file) {
+    public void save(final MultipartFile file) {
 
         try {
             List<ProductInventory> products = ExcelHelper.convertExcelToList(file.getInputStream());
@@ -38,23 +38,22 @@ public class ProductInventoryService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
-    public  final List<ProductInventory> getAllProducts() {
+    public List<ProductInventory> getAllProducts() {
         return productRepository.findAll();
     }
 
-    public final ProductInventory getProductById(final Long productId) {
+    public ProductInventory getProductById(final Long productId) {
         return productRepository.findById(productId).orElseThrow(NoSuchElementException::new);
     }
 
-    public final void addProduct(final ProductInventory productInventory) {
+    public void addProduct(final ProductInventory productInventory) {
 
         productRepository.save(productInventory);
     }
 
-    public final void removeBackorder(final Long productId, final ProductInventory productInventory) {
+    public void removeBackorder(final Long productId, final ProductInventory productInventory) {
         ProductInventory productObj = getProductById(productId);
         List<BackOrder> backOrders = backOrderRepository.findByOrderProductProductId(productId);
 
@@ -82,7 +81,7 @@ public class ProductInventoryService {
         }
     }
 
-    public final void updateProduct(final Long productId, final ProductInventory productInventory) {
+    public void updateProduct(final Long productId, final ProductInventory productInventory) {
         ProductInventory productObj = getProductById(productId);
         if (productObj != null) {
             productObj.setProductId(productId);
@@ -94,17 +93,21 @@ public class ProductInventoryService {
         }
     }
 
-    public final void deleteProduct(final Long orderId) {
+    public void deleteProduct(final Long orderId) {
         productRepository.deleteById(orderId);
     }
 
     @Scheduled(cron = "0 * * * * *")
-    public final void removeBackordersScheduled() {
+    public void removeBackordersScheduled() {
         // Get the list of products with backorders
         List<ProductInventory> productsWithBackorders = productRepository.findAll();
 
         for (ProductInventory productInventory : productsWithBackorders) {
             removeBackorder(productInventory.getProductId(), productInventory);
         }
+    }
+
+    public void setProductInventoryRepository(ProductInventoryRepository productInventoryRepository) {
+        this.productRepository = productInventoryRepository;
     }
 }

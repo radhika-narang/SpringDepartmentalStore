@@ -6,30 +6,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class BackOrderService {
 
-    @Autowired
-    private BackOrderRepository backorderRepository;
+    private BackOrderRepository backOrderRepository;
 
-    public final List<BackOrder> getAllBackOrders() {
-        return backorderRepository.findAll();
+    public List<BackOrder> getAllBackOrders() {
+        return backOrderRepository.findAll();
     }
 
-    public final BackOrder getBackOrderById(final Long backOrderId) {
-        return backorderRepository.findById(backOrderId).orElseThrow(
-                () -> new IllegalArgumentException("Backorder id: " + backOrderId + " not found")
-        );
+    public BackOrder getBackOrderById(final Long backOrderId) {
+        return backOrderRepository.findById(backOrderId)
+                .orElseThrow(NoSuchElementException::new);
     }
 
-    public final void createBackOrder(final BackOrder backorder) {
-        backorderRepository.save(backorder);
+    public void createBackOrder(final BackOrder backorder) {
+        backOrderRepository.save(backorder);
     }
 
-    public final void deleteBackOrder(final Long backOrderId) {
-        backorderRepository.deleteById(backOrderId);
+    public void deleteBackOrder(final Long backOrderId) {
+        backOrderRepository.deleteById(backOrderId);
     }
+
+
 
 
 }
