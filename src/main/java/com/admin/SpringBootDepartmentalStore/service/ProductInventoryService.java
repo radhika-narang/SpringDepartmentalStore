@@ -17,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -112,16 +111,16 @@ public class ProductInventoryService {
         }
     }
 
-    public void setProductInventoryRepository(ProductInventoryRepository productInventoryRepository) {
+    public void setProductInventoryRepository(final ProductInventoryRepository productInventoryRepository) {
         this.productRepository = productInventoryRepository;
     }
 
-    public Stream<ProductInventory> searchProductsStream(String productName) {
+    public Stream<ProductInventory> searchProductsStream(final String productName) {
         return productRepository.findAll().stream()
                 .filter(product -> product.getProductName().equalsIgnoreCase(productName));
     }
 
-    public Page<ProductInventory> getAllProductsWithPagination(int page, int size) {
+    public Page<ProductInventory> getAllProductsWithPagination(final int page, final int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         return productRepository.findAll(pageable);
     }

@@ -98,10 +98,9 @@ public class OrderService {
         checkProductAvailability(order);
         String email = order.getCustomer().getEmail();
         String fullName = order.getCustomer().getFullName();
-        Long orderID= order.getOrderId();
-        emailSender.sendEmail(email,
-                "Order confirmation : #OrderID" + orderID, "Hi " + fullName + ", your order has been confirmed and will be delivered to you soon!" +
-                        " \n Thank you for shopping with us!");
+        Long orderId = order.getOrderId();
+        emailSender.sendEmail(email, "Order confirmation : #OrderID" + orderId, "Hi " + fullName + ", your order has been confirmed and will be delivered to you soon!"
+                + " \n Thank you for shopping with us!");
     }
 
     public void updateOrder(final Order order) {
@@ -125,27 +124,27 @@ public class OrderService {
         orderRepository.deleteById(orderId);
     }
 
-    public void setBackOrderService(BackOrderService backOrderService) {
+    public void setBackOrderService(final BackOrderService backOrderService) {
         this.backOrderService = backOrderService;
     }
 
-    public void setProductInventoryRepository(ProductInventoryRepository productInventoryRepository) {
-        this.productInventoryRepository=productInventoryRepository;
+    public void setProductInventoryRepository(final ProductInventoryRepository productInventoryRepository) {
+        this.productInventoryRepository = productInventoryRepository;
     }
 
-    public void setOrderRepository(OrderRepository orderRepository) {
-        this.orderRepository=orderRepository;
+    public void setOrderRepository(final OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
     }
 
-    public void setCustomerRepository(CustomerRepository customerRepository) {
-        this.customerRepository=customerRepository;
+    public void setCustomerRepository(final CustomerRepository customerRepository) {
+        this.customerRepository = customerRepository;
     }
 
-    public void setBackOrderRepository(BackOrderRepository backOrderRepository) {
-        this.backOrderRepository=backOrderRepository;
+    public void setBackOrderRepository(final BackOrderRepository backOrderRepository) {
+        this.backOrderRepository = backOrderRepository;
     }
 
-    public void setEmailSender(EmailSender emailSender) {
+    public void setEmailSender(final EmailSender emailSender) {
         this.emailSender = emailSender;
     }
 }

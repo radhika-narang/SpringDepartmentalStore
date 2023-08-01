@@ -4,13 +4,10 @@ import com.admin.SpringBootDepartmentalStore.bean.ProductInventory;
 import com.admin.SpringBootDepartmentalStore.helper.ExcelHelper;
 import com.admin.SpringBootDepartmentalStore.service.ProductInventoryService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,14 +20,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/productInventory")
@@ -87,7 +81,7 @@ public class ProductInventoryController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error")})
 
     @GetMapping("/search")
-    public ResponseEntity<?> searchProducts(@RequestParam(value = "productName") String productName) {
+    public ResponseEntity<?> searchProducts(final @RequestParam(value = "productName") String productName) {
 
         List<ProductInventory> productList = productInventoryService.searchProductsStream(productName)
                 .collect(Collectors.toList());
@@ -117,8 +111,8 @@ public class ProductInventoryController {
 
 
     @GetMapping("/searchWithPagination")
-    public ResponseEntity<?> getAllProducts(@RequestParam(defaultValue = "1") int page,
-                                            @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<?> getAllProducts(final @RequestParam(defaultValue = "1") int page,
+                                            final @RequestParam(defaultValue = "10") int size) {
         Page<ProductInventory> productPage = productInventoryService.getAllProductsWithPagination(page, size);
 
         if (productPage.isEmpty()) {

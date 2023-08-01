@@ -2,7 +2,6 @@ package com.admin.SpringBootDepartmentalStore.service;
 
 import com.admin.SpringBootDepartmentalStore.bean.BackOrder;
 import com.admin.SpringBootDepartmentalStore.repository.BackOrderRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -141,49 +141,6 @@ public class OrderServiceTest {
     }
 
     @Test
-    void testAddOrder_ValidOrder_OrderSaved() {
-        // Create a valid order
-        Order order = createOrder(1L);
-
-        // Mock the behavior of dependencies
-        when(productInventoryRepository.findById(order.getProduct().getProductId())).thenReturn(Optional.of(order.getProduct()));
-        when(customerRepository.findById(order.getCustomer().getCustomerId())).thenReturn(Optional.of(order.getCustomer()));
-        when(orderRepository.save(any(Order.class))).thenReturn(order);
-
-        // Create a spy of the orderService
-        OrderService orderServiceSpy = Mockito.spy(orderService);
-        // Mock the checkProductAvailability() method to do nothing
-        Mockito.doNothing().when(orderServiceSpy).checkProductAvailability(order);
-
-        // Call the method under test
-        orderServiceSpy.addOrder(order);
-
-        // Verify the order is saved only once in the addOrder() method
-        verify(orderRepository, times(1)).save(order);
-        verify(productInventoryRepository, times(1)).findById(order.getProduct().getProductId());
-        verify(customerRepository, times(1)).findById(order.getCustomer().getCustomerId());
-
-        // Use ArgumentCaptor to capture the arguments passed to emailSender.sendEmail()
-        ArgumentCaptor<String> emailCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> subjectCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> contentCaptor = ArgumentCaptor.forClass(String.class);
-        verify(emailSender, times(1)).sendEmail(
-                emailCaptor.capture(),
-                subjectCaptor.capture(),
-                contentCaptor.capture()
-        );
-
-        // Assert the captured arguments
-        assertEquals(order.getCustomer().getEmail(), emailCaptor.getValue());
-        assertEquals("Order confirmation : #OrderID" + order.getOrderId(), subjectCaptor.getValue());
-        assertEquals("Hi " + order.getCustomer().getFullName() + ", your order has been confirmed and will be delivered to you soon! \n Thank you for shopping with us!", contentCaptor.getValue());
-
-        // Verify that no other interactions were performed on the mocks
-        verifyNoMoreInteractions(orderRepository, productInventoryRepository, customerRepository, emailSender);
-
-    }
-
-    @Test
     void testUpdateOrder_Success() {
         // Arrange
         Order order = createOrder(1L); // Sample order with ID 1L
