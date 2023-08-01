@@ -4,9 +4,13 @@ import com.admin.SpringBootDepartmentalStore.bean.ProductInventory;
 import com.admin.SpringBootDepartmentalStore.helper.ExcelHelper;
 import com.admin.SpringBootDepartmentalStore.service.ProductInventoryService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,9 +23,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/productInventory")
@@ -31,8 +40,9 @@ public class ProductInventoryController {
     private ProductInventoryService productInventoryService;
 
     /**
-     Retrieves all products in the inventory.
-     @return A list of all products in the inventory.
+     * Retrieves all products in the inventory.
+     *
+     * @return A list of all products in the inventory.
      */
 
     @Operation(operationId = "getProduct", summary = "get Product")
@@ -46,9 +56,10 @@ public class ProductInventoryController {
     }
 
     /**
-    Retrieves a specific product from the inventory by its ID.
-    @param productId The ID of the product to retrieve.
-    @return A response entity containing the retrieved product if found.
+     * Retrieves a specific product from the inventory by its ID.
+     *
+     * @param productId The ID of the product to retrieve.
+     * @return A response entity containing the retrieved product if found.
      */
 
     @Operation(operationId = "getProduct", summary = "get Product with Product id")
@@ -61,6 +72,65 @@ public class ProductInventoryController {
     public ResponseEntity<ProductInventory> getProductById(final @PathVariable Long productId) {
         ProductInventory productInventory = productInventoryService.getProductById(productId);
         return ResponseEntity.ok(productInventory);
+    }
+
+    /**
+     * Retrieves a specific product from the inventory by its ID.
+     *
+     * @param productName The name of the product to retrieve.
+     * @return A response entity containing the retrieved product if found.
+     */
+
+    @Operation(operationId = "searchProducts", summary = "Search Product by Name")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the Product"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error")})
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchProducts(@RequestParam(value = "productName") String productName) {
+
+        List<ProductInventory> productList = productInventoryService.searchProductsStream(productName)
+                .collect(Collectors.toList());
+
+        if (productList.isEmpty()) {
+            // If the search result is empty, return a custom message or any desired response
+            String message = "Product with name '" + productName + "' not found.";
+            return ResponseEntity.ok(message);
+        } else {
+            // If the product is found, return the details
+            return ResponseEntity.ok(productList);
+        }
+    }
+
+    /**
+     * Retrieves a specific product from the inventory by its ID.
+     *
+     * @param page The page number to retrieve
+     * @param size The size limit of the page
+     * @return A response entity containing the retrieved product details on the requested page number.
+     */
+
+    @Operation(operationId = "searchProducts", summary = "Search Product by Name")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the Product"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error")})
+
+
+    @GetMapping("/searchWithPagination")
+    public ResponseEntity<?> getAllProducts(@RequestParam(defaultValue = "1") int page,
+                                            @RequestParam(defaultValue = "10") int size) {
+        Page<ProductInventory> productPage = productInventoryService.getAllProductsWithPagination(page, size);
+
+        if (productPage.isEmpty()) {
+            String message = "No products found.";
+            return ResponseEntity.ok(message);
+        } else {
+            // Return the page number and list of products
+            Map<String, Object> response = new HashMap<>();
+            response.put("pageNumber", productPage.getNumber() + 1); // Add 1 to the page number to make it 1-indexed
+            response.put("products", productPage.getContent());
+            return ResponseEntity.ok(response);
+        }
     }
 
     /**
@@ -82,7 +152,7 @@ public class ProductInventoryController {
 
             this.productInventoryService.save(file);
 
-            return ResponseEntity.ok(Map.of("message", "File is uploaded and data is saved to db"));
+            return ResponseEntity.ok(Map.of("message", "File is uploaded"));
 
 
         }

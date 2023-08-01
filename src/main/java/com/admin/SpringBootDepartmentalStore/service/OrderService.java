@@ -35,6 +35,9 @@ public class OrderService {
     @Autowired
     private BackOrderRepository backOrderRepository;
 
+    @Autowired
+    private EmailSender emailSender;
+
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
     }
@@ -89,10 +92,16 @@ public class OrderService {
 
 
     public void addOrder(final Order order) {
-       updateOtherEntities(order);
+        updateOtherEntities(order);
         discount(order);
         orderRepository.save(order);
         checkProductAvailability(order);
+        String email = order.getCustomer().getEmail();
+        String fullName = order.getCustomer().getFullName();
+        Long orderID= order.getOrderId();
+        emailSender.sendEmail(email,
+                "Order confirmation : #OrderID" + orderID, "Hi " + fullName + ", your order has been confirmed and will be delivered to you soon!" +
+                        " \n Thank you for shopping with us!");
     }
 
     public void updateOrder(final Order order) {
@@ -134,5 +143,9 @@ public class OrderService {
 
     public void setBackOrderRepository(BackOrderRepository backOrderRepository) {
         this.backOrderRepository=backOrderRepository;
+    }
+
+    public void setEmailSender(EmailSender emailSender) {
+        this.emailSender = emailSender;
     }
 }

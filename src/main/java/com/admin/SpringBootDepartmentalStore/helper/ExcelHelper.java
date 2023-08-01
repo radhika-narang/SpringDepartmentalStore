@@ -64,10 +64,10 @@ public class ExcelHelper {
                             p.setProductId((long) cell.getNumericCellValue());
                             break;
                         case 1:
-                            p.setProductName(cell.getStringCellValue());
+                            p.setProductDesc(cell.getStringCellValue());
                             break;
                         case 2:
-                            p.setProductDesc(cell.getStringCellValue());
+                            p.setProductName(cell.getStringCellValue());
                             break;
                         case 3:
                             p.setPrice(cell.getNumericCellValue());
