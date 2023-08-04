@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 @Service
 public class BackOrderService {
 
+    @Autowired
     private BackOrderRepository backOrderRepository;
 
     public List<BackOrder> getAllBackOrders() {
